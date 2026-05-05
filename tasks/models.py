@@ -22,7 +22,7 @@ class Producto(models.Model):
 class Cliente(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100, blank=True)
     correo = models.EmailField()
     telefono = models.CharField(max_length=20, blank=True)
     direccion = models.TextField(blank=True)
@@ -39,6 +39,9 @@ class Cart(models.Model):
     @property
     def subtotal(self):
         return self.cantidad * self.producto.precio
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre} ({self.cliente.nombre})"
+
 
 class Pedido(models.Model):
     ESTADO_CHOICES = [

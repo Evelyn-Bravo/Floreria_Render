@@ -97,9 +97,11 @@ def carrito(request):
             return redirect('catalogo')
             
         except Producto.DoesNotExist:
-            pass
+            messages.error(request, 'El producto no existe.')
+            return redirect('catalogo')
         except Exception as e:
-            print(f"Error al agregar al carrito: {str(e)}")
+            messages.error(request, 'Ocurrió un error al agregar el producto al carrito.')
+            return redirect('catalogo')
     
     # Mostrar el carrito solo si no estamos agregando productos
     try:
@@ -123,7 +125,7 @@ def carrito(request):
     except Cliente.DoesNotExist:
         return render(request, 'carrito.html', {'carrito': []})
     except Exception as e:
-        print(f"Error al mostrar carrito: {str(e)}")
+        messages.error(request, 'Ocurrió un error al cargar el carrito.')
         return render(request, 'carrito.html', {'carrito': []})
 
 def signout(request):
@@ -222,7 +224,7 @@ def remove_cart(request):
             costo_envio = Decimal('150.00')  # Costo de envío fijo
             data = {
                 'total_items': total_items,
-                'total': Decimal(total + + costo_envio)
+                'total': Decimal(total + costo_envio)
             }
             
             return JsonResponse(data)
@@ -236,7 +238,7 @@ def vaciar_carrito(request):
         Cart.objects.filter(cliente=cliente).delete()
         return redirect('carrito')
     except Exception as e:
-        print(f"Error al vaciar carrito: {str(e)}")
+        messages.error(request, 'Ocurrió un error al vaciar el carrito.')
         return redirect('carrito')
 
 def catalogo(request):
@@ -352,6 +354,7 @@ def checkout(request):
         messages.error(request, 'Necesitas completar tu perfil antes de realizar una compra')
         return redirect('perfil')
 
+@login_required
 def pago_exitoso(request, pedido_id):
     try:
         pedido = Pedido.objects.get(id=pedido_id, cliente__usuario=request.user) # Verificar que el pedido pertenece al usuario
