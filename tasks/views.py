@@ -368,7 +368,7 @@ def checkout(request):
         messages.error(request, 'Ocurrió un error inesperado al procesar tu pedido. Intenta de nuevo.')
         return redirect('carrito')
 
-@login_required
+@login_required 
 def pago_exitoso(request, pedido_id):
     try:
         pedido = Pedido.objects.get(id=pedido_id, cliente__usuario=request.user) # Verificar que el pedido pertenece al usuario
