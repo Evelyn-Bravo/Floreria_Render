@@ -232,7 +232,7 @@ def remove_cart(request):
             
             return JsonResponse(data)
         except (Cliente.DoesNotExist, Cart.DoesNotExist):
-            return JsonResponse({'error': 'Producto no encontrado en el carrito'}, status=404)
+            return JsonResponse({'error': 'Producto no encontrado en el carrito'}, status=404) 
 
 @login_required
 def vaciar_carrito(request):
