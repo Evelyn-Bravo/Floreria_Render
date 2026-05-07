@@ -11,9 +11,12 @@
             <div class="card">
                 <div class="card-body">
                     <h3>Carrito</h3>
-                    <a href="{% url 'vaciar_carrito' %}" class="btn btn-danger btn-sm">
-                        <i class="fa fa-trash"></i> Vaciar Carrito
-                    </a>
+                    <form action="{% url 'vaciar_carrito' %}" method="POST" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fa fa-trash"></i> Vaciar Carrito
+                        </button>
+                    </form>
                     {% for item in carrito %}
                     <div class="row mb-3">
                         <div class="col-sm-3 text-center align-self-center">
