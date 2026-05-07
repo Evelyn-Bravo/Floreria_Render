@@ -29,14 +29,14 @@ def signup(request):
                 user.save() # registrar el usuario en la base de datos
                 login(request, user) # iniciar sesion automaticamente
                 return redirect('home')
-            except:
+            except Exception:
                 return render(request, 'signup.html', {
                     'form': UserCreationForm,
                     "error": 'El usuario ya existe'
                 })
         return render(request, 'signup.html', {
             'form': UserCreationForm,
-            "error": 'Contrasenas no coinciden'
+            "error": 'Las contraseñas no coinciden'
         })
 
         # print(request.POST) #mostrar en consola los datos que el usuario ingreso
@@ -61,6 +61,9 @@ def carrito(request):
     producto_id = request.GET.get('producto_id')
     
     if producto_id:
+        if not producto_id.isdigit():
+            messages.error(request, 'Producto no válido.')
+            return redirect('catalogo')
         try:
             # Obtener el producto
             producto_obj = Producto.objects.get(id=producto_id)
@@ -143,7 +146,7 @@ def signin(request):
         if user is None:
             return render(request, 'signin.html',{
             'form': AuthenticationForm,
-            'error': 'el usuario o contrasena es incorrecta'
+            'error': 'El usuario o contraseña es incorrecta'
         })
         else:
             login(request, user)
@@ -233,6 +236,8 @@ def remove_cart(request):
 
 @login_required
 def vaciar_carrito(request):
+    if request.method != 'POST':
+        return redirect('carrito')
     try:
         cliente = Cliente.objects.get(usuario=request.user)
         Cart.objects.filter(cliente=cliente).delete()
@@ -258,10 +263,16 @@ def perfil(request):
     )
     
     if request.method == 'POST':
+        # Validar que el correo no venga vacío
+        correo = request.POST.get('correo', '').strip()
+        if not correo or '@' not in correo:
+            messages.error(request, 'Por favor ingresa un correo electrónico válido.')
+            return render(request, 'perfil.html', {'cliente': cliente, 'pedidos': Pedido.objects.filter(cliente=cliente).order_by('-fecha')})
+
         # Actualizar datos del cliente con los datos del formulario en la base de datos
         cliente.nombre = request.POST.get('nombre', '')
         cliente.apellido = request.POST.get('apellido', '')
-        cliente.correo = request.POST.get('correo', '')
+        cliente.correo = correo
         cliente.telefono = request.POST.get('telefono', '')
         cliente.direccion = request.POST.get('direccion', '')
         cliente.ciudad = request.POST.get('ciudad', '')
@@ -270,7 +281,7 @@ def perfil(request):
         cliente.save()
         
         # También actualizar el email del usuario
-        request.user.email = request.POST.get('correo', '')
+        request.user.email = correo
         request.user.save()
         
         # Mensaje de éxito
@@ -353,6 +364,9 @@ def checkout(request):
     except Cliente.DoesNotExist:
         messages.error(request, 'Necesitas completar tu perfil antes de realizar una compra')
         return redirect('perfil')
+    except Exception:
+        messages.error(request, 'Ocurrió un error inesperado al procesar tu pedido. Intenta de nuevo.')
+        return redirect('carrito')
 
 @login_required
 def pago_exitoso(request, pedido_id):

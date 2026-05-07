@@ -9,13 +9,6 @@ admin.site.site_header = "Panel de Administración - Florería"
 admin.site.site_title = "Florería Admin"
 admin.site.index_title = "Bienvenido al Dashboard de la Florería"
 
-# Personalizar la vista de Orden en el admin
-class OrdenAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'producto', 'cantidad', 'fecha')
-    list_filter = ('fecha', 'cliente')
-    search_fields = ('cliente__nombre', 'producto__nombre')
-    date_hierarchy = 'fecha'
-
 @admin.register(Producto)
 class ProductoModelAdmin(admin.ModelAdmin):
     list_display = ('id','nombre', 'precio', 'stock')
@@ -41,4 +34,3 @@ class PedidoAdmin(admin.ModelAdmin):
     search_fields = ('cliente__nombre', 'id')
     date_hierarchy = 'fecha'
     inlines = [PedidoItemInline]
-
